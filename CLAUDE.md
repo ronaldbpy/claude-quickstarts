@@ -1,67 +1,58 @@
-# Claude Quickstarts Development Guide
+# Claude Quickstarts
 
-## Conventions (all quickstarts)
+## Qué es
+Colección de proyectos de referencia para que developers arranquen rápido con la Claude API. Cada quickstart es una base lista para customizar: computer-use, browser-use, customer support, financial analyst, autonomous coding, Managed Agents.
 
-- Name Anthropic SDK client instances `client` — e.g. `const client = new Anthropic();` in TypeScript, `client = Anthropic()` in Python. This applies to source files and code snippets in READMEs and guides alike.
-- Never use the "CMA" acronym. Write "Managed Agents" or "Claude Managed Agents" in prose and comments, and spell it out in identifiers, file names, and log prefixes (e.g. `managed-agents.ts`, not `cma.ts`; `[managed-agent]`, not `[cma]`).
+## Cómo se levanta
 
-## Legal
+```bash
+# Computer-Use Demo (Docker)
+cd computer-use-demo
+./setup.sh
+docker build . -t computer-use-demo:local
+docker run -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY \
+  -v $(pwd)/computer_use_demo:/home/computeruse/computer_use_demo/ \
+  -p 5900:5900 -p 8501:8501 -p 6080:6080 -p 8080:8080 \
+  -it computer-use-demo:local
 
-- When changes are made to files that have a copyright notice add them to that subdirectory's CHANGELOG.md file.
+# Customer Support Agent / Financial Data Analyst (Node)
+cd <quickstart-dir>
+npm install && npm run dev
 
-## Computer-Use Demo
+# Autonomous Coding / Managed Agents (Python)
+cd <quickstart-dir>
+uv sync && uv run python main.py
+```
 
-### Setup & Development
+## Stack
+- Python 3 + uv (computer-use, autonomous-coding, managed-agents)
+- TypeScript / Next.js (customer-support-agent, financial-data-analyst, browser-use-demo)
+- Docker (computer-use-demo)
+- Ruff + pyright (Python linting/typecheck)
+- ESLint + shadcn/ui (TS quickstarts)
 
-- **Setup environment**: `./setup.sh`
-- **Build Docker**: `docker build . -t computer-use-demo:local`
-- **Run container**: `docker run -e ANTHROPIC_API_KEY=$ANTHROPIC_API_KEY -v $(pwd)/computer_use_demo:/home/computeruse/computer_use_demo/ -v $HOME/.anthropic:/home/computeruse/.anthropic -p 5900:5900 -p 8501:8501 -p 6080:6080 -p 8080:8080 -it computer-use-demo:local`
+## Estructura
+```
+computer-use-demo/          — control de desktop vía Docker + VNC
+computer-use-best-practices/ — implementación nativa macOS (correr en VM)
+browser-use-demo/           — automatización web con Playwright
+customer-support-agent/     — agente de soporte con knowledge base (Next.js)
+financial-data-analyst/     — análisis financiero con visualización (Next.js + Recharts)
+autonomous-coding/          — agente de coding autónomo (Claude Agent SDK)
+managed-agents/             — quickstarts de Managed Agents (chat-sdk, copilot-kit, knowledge-wiki)
+agents/                     — definiciones de agentes compartidas
+```
 
-### Testing & Code Quality
+## Reglas de este proyecto
+- Instancias del SDK de Anthropic siempre se llaman `client` — `const client = new Anthropic()` / `client = Anthropic()`. En código Y en READMEs.
+- Nunca usar el acrónimo "CMA". Escribir "Managed Agents" o "Claude Managed Agents" en prose, comentarios e identificadores.
+- Cambios en archivos con copyright notice: agregar entrada en el `CHANGELOG.md` del subdirectorio.
+- Python: snake_case para funciones/variables, PascalCase para clases. Type annotations en todos los parámetros y returns.
+- TypeScript: strict mode. Function components con React hooks. shadcn/ui para UI components.
+- Correr lint/format antes de commitear:
+  - Python: `ruff check . && ruff format . && pyright`
+  - Node: `npm run lint && npm run build`
 
-- **Lint**: `ruff check .`
-- **Format**: `ruff format .`
-- **Typecheck**: `pyright`
-- **Run tests**: `pytest`
-- **Run single test**: `pytest tests/path_to_test.py::test_name -v`
-
-### Code Style
-
-- **Python**: snake_case for functions/variables, PascalCase for classes
-- **Imports**: Use isort with combine-as-imports
-- **Error handling**: Use custom ToolError for tool errors
-- **Types**: Add type annotations for all parameters and returns
-- **Classes**: Use dataclasses and abstract base classes
-
-## Customer Support Agent
-
-### Setup & Development
-
-- **Install dependencies**: `npm install`
-- **Run dev server**: `npm run dev` (full UI)
-- **UI variants**: `npm run dev:left` (left sidebar), `npm run dev:right` (right sidebar), `npm run dev:chat` (chat only)
-- **Lint**: `npm run lint`
-- **Build**: `npm run build` (full UI), see package.json for variants
-
-### Code Style
-
-- **TypeScript**: Strict mode with proper interfaces
-- **Components**: Function components with React hooks
-- **Formatting**: Follow ESLint Next.js configuration
-- **UI components**: Use shadcn/ui components library
-
-## Financial Data Analyst
-
-### Setup & Development
-
-- **Install dependencies**: `npm install`
-- **Run dev server**: `npm run dev`
-- **Lint**: `npm run lint`
-- **Build**: `npm run build`
-
-### Code Style
-
-- **TypeScript**: Strict mode with proper type definitions
-- **Components**: Function components with type annotations
-- **Visualization**: Use Recharts library for data visualization
-- **State management**: React hooks for state
+## Cosas que ya intentamos y no funcionaron
+- Usar "CMA" como abreviatura — prohibido en el repo. Siempre expandir.
+- Omitir type annotations en Python — pyright las requiere.
